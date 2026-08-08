@@ -1,0 +1,196 @@
+vars:
+  step_count: &step_count 500
+  time_limit: &time_limit 7200 # 120 minutes
+
+defaults: &defaults
+  start: aide/start.sh
+  dockerfile: aide/Dockerfile
+  kwargs_type: omegaconf
+  env_vars: &env_vars
+    TIME_LIMIT_SECS: *time_limit
+    STEP_LIMIT: *step_count
+
+kwargs_common: &kwargs_common
+  agent.search.max_debug_depth: 5 # debug down a branch for up to 20 steps
+  agent.search.debug_prob: 0.7  # always debug when there's something to debug
+  agent.search.error_backtrack_threshold: 3 # backtrack after seeing same error this many times
+  agent.search.use_mcts: true
+  agent.search.mcts_method: thompson
+  agent.search.thompson_prior_alpha: 1.0
+  agent.search.thompson_prior_beta: 1.0
+  agent.search.ucb_exploration_weight : 1.414
+  agent.time_limit: *time_limit
+  exec.timeout: 32400 # 9 hours limit _per step_, to match max of kaggle.com
+  copy_data: False # use symbolic links
+
+aide:
+  <<: *defaults
+  kwargs:
+    <<: *kwargs_common
+    agent.code.model: gpt-5-mini-2025-08-07
+    agent.code.temp: 1
+    agent.feedback.model: gpt-5-mini-2025-08-07
+    agent.feedback.temp: 1
+    agent.steps: *step_count
+  env_vars:
+    <<: *env_vars
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+aide/dev:
+  <<: *defaults
+  kwargs:
+    <<: *kwargs_common
+    agent.code.model: gpt-5-mini
+    agent.code.temp: 1.0
+    agent.feedback.model: gpt-5-mini
+    agent.feedback.temp: 1.0
+    agent.steps: 8
+  env_vars:
+    <<: *env_vars
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+aide/o1-preview:
+  <<: *defaults
+  kwargs:
+    <<: *kwargs_common
+    agent.code.model: o1-preview
+    agent.code.temp: 1
+    agent.feedback.model: gpt-5-mini
+    agent.feedback.temp: 1.0
+    agent.steps: *step_count
+    agent.convert_system_to_user: True
+  env_vars:
+    <<: *env_vars
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+aide/gpt-4-turbo:
+  <<: *defaults
+  kwargs:
+    <<: *kwargs_common
+    agent.code.model: gpt-5-mini
+    agent.code.temp: 1.0
+    agent.feedback.model: gpt-5-mini
+    agent.feedback.temp: 1.0
+    agent.steps: *step_count
+  env_vars:
+    <<: *env_vars
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+aide/gpt-4-turbo-dev:
+  <<: *defaults
+  kwargs:
+    <<: *kwargs_common
+    agent.code.model: gpt-5-mini
+    agent.code.temp: 1.0
+    agent.feedback.model: gpt-5-mini
+    agent.feedback.temp: 1.0
+    agent.steps: 8
+  env_vars:
+    <<: *env_vars
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+aide/gpt-3.5-turbo-0125:
+  <<: *defaults
+  kwargs:
+    <<: *kwargs_common
+    agent.code.model: gpt-5-mini
+    agent.code.temp: 1.0
+    agent.feedback.model: gpt-5-mini
+    agent.feedback.temp: 1.0
+    agent.steps: *step_count
+  env_vars:
+    <<: *env_vars
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+aide/gpt-3.5-dev:
+  <<: *defaults
+  kwargs:
+    <<: *kwargs_common
+    agent.code.model: gpt-5-mini
+    agent.code.temp: 1.0
+    agent.feedback.model: gpt-5-mini
+    agent.feedback.temp: 1.0
+    agent.steps: 8
+  env_vars:
+    <<: *env_vars
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+aide/claude-3-5-sonnet:
+  <<: *defaults
+  kwargs:
+    <<: *kwargs_common
+    agent.code.model: claude-3-5-sonnet-20240620
+    agent.feedback.model: gpt-5-mini
+    agent.feedback.temp: 1.0
+    agent.steps: *step_count
+  env_vars:
+    <<: *env_vars
+    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+aide/llama-3.1-405b-instruct:
+  <<: *defaults
+  kwargs:
+    <<: *kwargs_common
+    agent.code.model: meta-llama/llama-3.1-405b-instruct
+    agent.feedback.model: gpt-5-mini
+    agent.feedback.temp: 1.0
+    agent.steps: *step_count
+  env_vars:
+    <<: *env_vars
+    OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+
+aide/gemini-1.5-pro:
+  <<: *defaults
+  kwargs:
+    <<: *kwargs_common
+    agent.code.model: gemini-1.5-pro-002
+    agent.feedback.model: gpt-5-mini
+    agent.feedback.temp: 1.0
+    agent.steps: *step_count
+  env_vars:
+    <<: *env_vars
+    GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+aide/5min:
+  <<: *defaults
+  kwargs:
+    <<: *kwargs_common
+    agent.code.model: gpt-5-mini
+    agent.code.temp: 1.0
+    agent.feedback.model: gpt-5-mini
+    agent.feedback.temp: 1.0
+    agent.steps: 20
+  env_vars:
+    <<: *env_vars
+    TIME_LIMIT_SECS: 300
+    STEP_LIMIT: 20
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+aide/test:
+  <<: *defaults
+  kwargs:
+    <<: *kwargs_common
+    agent.code.model: gpt-5-mini
+    agent.code.temp: 1.0
+    agent.feedback.model: gpt-5-mini
+    agent.feedback.temp: 1.0
+    agent.steps: *step_count
+  env_vars:
+    <<: *env_vars
+    TIME_LIMIT_SECS: 720 # 12 minutes for quick testing
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+aide/obfuscated:
+  <<: *defaults
+  kwargs:
+    <<: *kwargs_common
+    agent.code.model: gpt-5-mini
+    agent.code.temp: 1.0
+    agent.feedback.model: gpt-5-mini
+    agent.feedback.temp: 1.0
+    agent.steps: *step_count
+    agent.obfuscate: True
+  env_vars:
+    <<: *env_vars
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    OBFUSCATE: "true"

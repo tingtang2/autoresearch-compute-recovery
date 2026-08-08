@@ -1,0 +1,71 @@
+# path to the task data directory
+data_dir: null
+
+# either provide a path to a plaintext file describing the task
+desc_file: null
+# or provide the task goal (and optionally evaluation information) as arguments
+goal: null
+eval: null
+
+log_dir: logs
+log_level: INFO
+workspace_dir: workspaces
+
+# whether to unzip any archives in the data directory
+preprocess_data: True
+# whether to copy the data to the workspace directory (otherwise it will be symlinked)
+# copying is recommended to prevent the agent from accidentally modifying the original data
+copy_data: True
+
+exp_name: null # a random experiment name will be generated if not provided
+
+# settings for code execution
+exec:
+  timeout: 3600
+  agent_file_name: runfile.py
+  format_tb_ipython: False
+
+# agent hyperparams
+agent:
+  # how many improvement iterations to run
+  steps: 20
+  # total time available to agent
+  time_limit: 7200 # 24 hrs (purely informational, implementation is user's resp)
+  # whether to instruct the agent to use CV (set to 1 to disable)
+  k_fold_validation: 5
+  # whether to instruct the agent to generate a prediction function
+  expose_prediction: False
+  # whether to provide the agent with a preview of the data
+  data_preview: True
+  # whether to convert system messages into user messages
+  convert_system_to_user: False
+  # whether to obfuscate that we're doing kaggle
+  obfuscate: False
+
+  # LLM settings for coding
+  code:
+    model: gpt-5-mini-2025-08-07
+    temp: 1.0
+
+  # LLM settings for evaluating program output / tracebacks
+  feedback:
+    model: gpt-5-mini-2025-08-07
+    temp: 1.0
+
+  # hyperparameters for the tree search
+  search:
+    max_debug_depth: 5
+    debug_prob: 0.7
+    num_drafts: 20
+    error_backtrack_threshold: 3  # backtrack after seeing same error this many times
+
+    # MCTS (Monte Carlo Tree Search) settings for intelligent node selection
+    use_mcts: true  # Enable MCTS for backtracking (set to false for random selection)
+    mcts_method: thompson  # Options: 'thompson' (recommended), 'ucb1', 'random'
+
+    # Thompson Sampling settings (only used if mcts_method='thompson')
+    thompson_prior_alpha: 1.0  # Prior success count (1.0 = neutral, >1 = optimistic)
+    thompson_prior_beta: 1.0   # Prior failure count (1.0 = neutral, >1 = pessimistic)
+
+    # UCB1 settings (only used if mcts_method='ucb1')
+    ucb_exploration_weight: 1.414  # Exploration constant (sqrt(2) recommended)

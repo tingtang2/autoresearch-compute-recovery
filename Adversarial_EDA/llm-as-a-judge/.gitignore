@@ -1,0 +1,4 @@
+# Raw agent run data — excluded from the repo (large; thousands of files).
+# Point analyze_eda_impact.py at a local copy of these instead.
+adversarial_eda_runs/
+baseline_runs/

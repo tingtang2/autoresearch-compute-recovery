@@ -1,0 +1,31 @@
+name: Submodule Diff
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  submodule-summary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Fetch base branch
+        run: |
+          git fetch --no-tags --prune --depth=1 origin "${{ github.base_ref }}"
+
+      - name: Generate Submodule Diff
+        run: |
+          echo "### Submodule Changes" >> $GITHUB_STEP_SUMMARY
+          BASE_REF="origin/${{ github.base_ref }}"
+          if git diff --submodule=short --name-only "$BASE_REF...HEAD" | grep -q .; then
+            git diff --submodule=log "$BASE_REF...HEAD" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No submodule changes in this PR." >> $GITHUB_STEP_SUMMARY
+          fi

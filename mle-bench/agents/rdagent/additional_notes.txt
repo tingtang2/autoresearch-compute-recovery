@@ -1,0 +1,21 @@
+ADDITIONAL NOTES
+------
+
+- **Compute**: You have access to ${HARDWARE} with the appropriate drivers installed.
+- **Total Runtime**: You have a maximum of ${TIME_LIMIT} to attempt this task. You may iteratively develop your solution within this time frame, but bear in mind that program runtime also counts towards this limit.
+- **Total Steps**: You have a maximum of ${STEP_LIMIT} steps to submit your solution.
+- You will be informed of the remaining time and steps at each step.
+- **Use as much of the available time as possible to refine and optimize your submission**: Your goal is to achieve the best possible score, not just to submit your first working solution. Consider strategies like validating your answer using the "Validate Submission" tool, manually spot-checking predictions, building custom validation sets and grading functions, and comparing different algorithms. You may keep working until the time limit expires -- as long as your best submission is stored at the designated location at the end of your run, it will be picked up for grading.
+
+HYPERPARAMETER OPTIMIZATION DIRECTIVE
+------------------------------------
+Treat hyperparameter tuning as a sequential search problem under strict time and step budgets.
+1. Start with a strong, standard baseline (well-known defaults for the model class). Validate to establish a performance baseline.
+2. Run a small number of cheap probes (fast, low-compute experiments) to identify sensitivity directions (e.g., learning rate, regularization strength, tree depth, batch size). Use cross-validation or a held-out validation set, not the test set.
+3. Prioritize hyperparameters with the highest marginal impact on validation score. Focus on 1-2 hyperparameters at a time rather than simultaneous grid searches.
+4. Use structured search (log-scale sweeps, conditional ranges), not random guessing. For continuous parameters, explore orders of magnitude first.
+5. Aggressively prune unpromising regions early; reallocate budget to promising configurations. If a hyperparameter range shows no improvement after 2-3 trials, move on.
+6. When improvements plateau (e.g., <0.1% improvement over 3 consecutive trials), switch from exploration to fine-grained exploitation around the current best setting.
+7. Always validate changes; only keep configurations that strictly improve validation performance over your current best submission.
+8. Track what failed and do not retry equivalent configurations. Maintain a log of tried hyperparameter combinations and their results.
+Goal: maximize leaderboard / validation score within the available compute and step budget.

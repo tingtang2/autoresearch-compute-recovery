@@ -1,0 +1,16 @@
+id: electricity-demand
+name: Electricity Demand
+competition_type: simple
+awards_medals: false
+prizes: null
+description: mlebench/competitions/electricity-demand/description.md
+
+dataset:
+  answers: electricity-demand/prepared/private/test.csv
+  sample_submission: electricity-demand/prepared/public/sample_submission.csv
+
+grader:
+  name: accuracy
+  grade_fn: mlebench.competitions.electricity-demand.grade:grade
+
+preparer: mlebench.competitions.electricity-demand.prepare:prepare

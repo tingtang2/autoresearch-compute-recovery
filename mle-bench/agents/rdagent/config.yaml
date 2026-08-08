@@ -1,0 +1,71 @@
+vars:
+  step_count: &step_count 50
+  time_limit: &time_limit 7200  # 2 hours
+
+defaults: &defaults
+  start: rdagent/start.sh
+  dockerfile: rdagent/Dockerfile
+  kwargs_type: null  # RD-Agent uses environment variables, not CLI kwargs
+  env_vars: &env_vars
+    TIME_LIMIT_SECS: *time_limit
+    STEP_LIMIT: *step_count
+    # KaggleScen for MLE-bench competitions (per official docs)
+    DS_SCEN: rdagent.scenarios.data_science.scen.KaggleScen
+    KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+    KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+    # Use conda env, not Docker-in-Docker
+    DS_Coder_CoSTEER_env_type: "conda"
+    DS_Runner_CoSTEER_ENV_TYPE: "conda"
+    # Whole-pipeline coding mode
+    DS_CODER_ON_WHOLE_PIPELINE: "True"
+    DS_IF_USING_MLE_DATA: "True"
+    DS_SAMPLE_DATA_BY_LLM: "True"
+    # Internal timeouts
+    DS_FULL_TIMEOUT: *time_limit
+    DS_DEBUG_TIMEOUT: "1200"
+
+rdagent:
+  <<: *defaults
+  kwargs: {}
+  env_vars:
+    <<: *env_vars
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    CHAT_MODEL: gpt-5-mini
+    EMBEDDING_MODEL: text-embedding-3-small
+    CHAT_TEMPERATURE: "1"
+    LITELLM_DROP_PARAMS: "True"
+
+rdagent/baseline:
+  <<: *defaults
+  kwargs: {}
+  env_vars:
+    <<: *env_vars
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    CHAT_MODEL: gpt-5-mini
+    EMBEDDING_MODEL: text-embedding-3-small
+    CHAT_TEMPERATURE: "1"
+    LITELLM_DROP_PARAMS: "True"
+
+rdagent/dev:
+  <<: *defaults
+  kwargs: {}
+  env_vars:
+    <<: *env_vars
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    CHAT_MODEL: gpt-4o
+    EMBEDDING_MODEL: text-embedding-3-small
+
+rdagent/light:
+  <<: *defaults
+  kwargs: {}
+  env_vars:
+    <<: *env_vars
+    TIME_LIMIT_SECS: 900
+    STEP_LIMIT: 10
+    DS_FULL_TIMEOUT: "900"
+    DS_CODER_MAX_LOOP: "3"
+    DS_RUNNER_MAX_LOOP: "1"
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    CHAT_MODEL: gpt-4o-mini
+    EMBEDDING_MODEL: text-embedding-3-small
+    LITELLM_DROP_PARAMS: "True"

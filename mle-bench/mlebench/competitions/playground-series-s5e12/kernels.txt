@@ -1,0 +1,2 @@
+# Kernels list to be populated from Kaggle
+# Run: kaggle kernels list -c playground-series-s5e12 --sort-by voteCount

@@ -1,0 +1,121 @@
+# AIDE ML Agent Configuration
+# Based on the aide/ package root in this folder
+# Time budget: 2 hours (matching baseline)
+# Model: gpt-5-mini
+
+vars:
+  time_limit: &time_limit 7200  # 2 hours
+  step_count: &step_count 999   # High limit - timeout controls runtime, not steps
+
+defaults: &defaults
+  start: aideml/start.sh
+  dockerfile: aideml/Dockerfile
+  kwargs_type: omegaconf
+  env_vars: &env_vars
+    TIME_LIMIT_SECS: *time_limit
+    STEP_LIMIT: *step_count
+
+kwargs_common: &kwargs_common
+  agent.search.max_debug_depth: 5
+  agent.search.debug_prob: 0.5
+  exec.timeout: 900  # 15 min max per execution step
+  exec.num_threads: 22  # Match allocated CPUs - XGBoost/LightGBM are CPU-bound
+  copy_data: False  # Use symbolic links
+  # 5-fold cross-validation
+  agent.k_fold_validation: 5
+  # Disable HP tuning
+  progressive.exploration.disable_hparam_tuning: true
+  progressive.refinement.disable_hparam_tuning: true
+  progressive.validation.disable_hparam_tuning: true
+  # Per-step grading with MLE-bench
+  per_step_grading.enabled: true
+  per_step_grading.mlebench_data_dir: /private/data
+  per_step_grading.grade_every_n_steps: 1
+  per_step_grading.save_every_n_steps: 1
+
+# ============================================
+# Debug Consultant ON (treatment group)
+# ============================================
+aideml/debug-consultant-on:
+  <<: *defaults
+  kwargs:
+    <<: *kwargs_common
+    agent.code.model: gpt-5-mini
+    agent.feedback.model: gpt-5-mini
+    agent.steps: *step_count
+    agent.search.use_bug_consultant: true
+    agent.search.bug_context_mode: consultant
+    agent.search.bug_context_count: 3
+  env_vars:
+    <<: *env_vars
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    BUG_CONSULTANT: "on"
+
+# ============================================
+# Debug Consultant OFF (control group)
+# ============================================
+aideml/debug-consultant-off:
+  <<: *defaults
+  kwargs:
+    <<: *kwargs_common
+    agent.code.model: gpt-5-mini
+    agent.feedback.model: gpt-5-mini
+    agent.steps: *step_count
+    agent.search.use_bug_consultant: false
+  env_vars:
+    <<: *env_vars
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    BUG_CONSULTANT: "off"
+
+# ============================================
+# Ablation: Debug Consultant ON, but shared context injection DISABLED
+# Keeps all backend mechanisms (recording, deterministic rules, leakage scans)
+# but removes Bug Prevention Alert (draft/improve) and Historical Bug Context (debug)
+# ============================================
+aideml/debug-consultant-no-injection:
+  <<: *defaults
+  kwargs:
+    <<: *kwargs_common
+    agent.code.model: gpt-5-mini
+    agent.feedback.model: gpt-5-mini
+    agent.steps: *step_count
+    agent.search.use_bug_consultant: true
+    agent.search.bug_context_mode: consultant
+    agent.search.bug_context_count: 3
+    agent.search.inject_shared_context: false
+  env_vars:
+    <<: *env_vars
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    BUG_CONSULTANT: "no-injection"
+
+# ============================================
+# Development/quick test variants
+# ============================================
+aideml/dev-on:
+  <<: *defaults
+  kwargs:
+    <<: *kwargs_common
+    agent.code.model: gpt-5-mini
+    agent.feedback.model: gpt-5-mini
+    agent.steps: 8
+    agent.search.use_bug_consultant: true
+    agent.search.bug_context_mode: consultant
+  env_vars:
+    <<: *env_vars
+    TIME_LIMIT_SECS: 3600  # 1 hour for dev
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    BUG_CONSULTANT: "on"
+
+aideml/dev-off:
+  <<: *defaults
+  kwargs:
+    <<: *kwargs_common
+    agent.code.model: gpt-5-mini
+    agent.feedback.model: gpt-5-mini
+    agent.steps: 8
+    agent.search.use_bug_consultant: false
+  env_vars:
+    <<: *env_vars
+    TIME_LIMIT_SECS: 3600  # 1 hour for dev
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    BUG_CONSULTANT: "off"

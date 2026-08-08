@@ -1,0 +1,16 @@
+id: class-prediction-of-cirrhosis-outcomes
+name: Multi-Class Prediction of Cirrhosis Outcomes
+competition_type: simple
+awards_medals: false
+prizes: null
+description: mlebench/competitions/class-prediction-of-cirrhosis-outcomes/description.md
+
+dataset:
+  answers: class-prediction-of-cirrhosis-outcomes/prepared/private/test.csv
+  sample_submission: class-prediction-of-cirrhosis-outcomes/prepared/public/sample_submission.csv
+
+grader:
+  name: log-loss
+  grade_fn: mlebench.competitions.class-prediction-of-cirrhosis-outcomes.grade:grade
+
+preparer: mlebench.competitions.class-prediction-of-cirrhosis-outcomes.prepare:prepare

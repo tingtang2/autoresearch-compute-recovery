@@ -1,0 +1,2 @@
+When the existing code has assemble_full_features() concatenating engineered_df and poly_df (where engineered_df and poly_df may share column names, e.g., "alcohol"), and the resulting DataFrame is used as X_train/X_val/X_test for model training:
+BANNED: Adding or modifying code that passes these DataFrames (with overlapping column names) as pandas DataFrames (not numpy arrays) to LightGBM's fit or predict methods (causes RuntimeError: Feature (alcohol) appears more than one time.)

@@ -1,0 +1,16 @@
+id: playground-series-s5e7
+name: Predict the Introverts from the Extroverts
+competition_type: simple
+awards_medals: false
+prizes: null
+description: mlebench/competitions/playground-series-s5e7/description.md
+
+dataset:
+  answers: playground-series-s5e7/prepared/private/test.csv
+  sample_submission: playground-series-s5e7/prepared/public/sample_submission.csv
+
+grader:
+  name: accuracy
+  grade_fn: mlebench.competitions.playground-series-s5e7.grade:grade
+
+preparer: mlebench.competitions.playground-series-s5e7.prepare:prepare

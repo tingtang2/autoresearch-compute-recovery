@@ -1,0 +1,47 @@
+# AIDE HPO experiment variants
+#
+# Self-contained agent tree for the *control-loop HPO* condition:
+# - aideml/aide/agent.py includes HPO scoring (_score_hyperparameter_tuning)
+# - additional_notes.txt is the baseline notes (no HPO directive)
+#
+# Build:
+#   export SUBMISSION_DIR=/home/submission LOGS_DIR=/home/logs CODE_DIR=/home/code AGENT_DIR=/home/agent
+#   docker build --platform=linux/amd64 -t aide_hpo_code agents/aide_hpo_code/ \
+#     --build-arg SUBMISSION_DIR=$SUBMISSION_DIR --build-arg LOGS_DIR=$LOGS_DIR \
+#     --build-arg CODE_DIR=$CODE_DIR --build-arg AGENT_DIR=$AGENT_DIR
+#
+# Run:
+#   python run_agent.py --agent-id aide-hpo-code --competition-set experiments/splits/kaggle_short_list.txt \
+#     --n-seeds 1 --n-workers 9
+
+vars:
+  step_count: &step_count 500
+  time_limit: &time_limit 7200 # 2 hours
+
+defaults: &defaults
+  start: aide_hpo_code/start.sh
+  dockerfile: aide_hpo_code/Dockerfile
+  kwargs_type: omegaconf
+  env_vars: &env_vars
+    TIME_LIMIT_SECS: *time_limit
+    STEP_LIMIT: *step_count
+
+kwargs_common: &kwargs_common
+  agent.search.max_debug_depth: 5
+  agent.search.debug_prob: 0.7
+  agent.time_limit: *time_limit
+  exec.timeout: 32400
+  copy_data: False
+
+aide-hpo-code:
+  <<: *defaults
+  kwargs:
+    <<: *kwargs_common
+    agent.code.model: gpt-5-mini-2025-08-07
+    agent.code.temp: 1
+    agent.feedback.model: gpt-5-mini-2025-08-07
+    agent.feedback.temp: 1
+    agent.steps: *step_count
+  env_vars:
+    <<: *env_vars
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

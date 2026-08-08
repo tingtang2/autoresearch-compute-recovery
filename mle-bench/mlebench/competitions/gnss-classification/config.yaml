@@ -1,0 +1,16 @@
+id: gnss-classification
+name: GNSS LOS/NLOS Classification
+competition_type: simple
+awards_medals: false
+prizes: null
+description: mlebench/competitions/gnss-classification/description.md
+
+dataset:
+  answers: gnss-classification/prepared/private/test.csv
+  sample_submission: gnss-classification/prepared/public/sample_submission.csv
+
+grader:
+  name: accuracy
+  grade_fn: mlebench.competitions.gnss-classification.grade:grade
+
+preparer: mlebench.competitions.gnss-classification.prepare:prepare

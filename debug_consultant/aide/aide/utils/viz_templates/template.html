@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en"> 
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      id="p5scripttag"
+      src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"
+      integrity="sha512-uaz5GpnQoE6t5echKlX8P52czvsIGgLPcvlzfvRubLZ1Hp8JemUDnbUiAahbVtPb+jUVrNETuXvAhDDF/N3M4w=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+
+    <script>
+      <!-- placeholder -->
+    </script>
+    <title>AIDE Run Visualization</title>
+    <style>
+      body,
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        overflow: scroll;
+      }
+      body {
+        background-color: #f2f0e7;
+        display: flex;
+      }
+      canvas {
+        height: 100vh;
+        width: 40vw;
+      }
+      #text-container {
+        height: 100vh;
+        width: 40vw;
+        background-color: #282c34;
+      }
+      #summary-container {
+        height: 100vh;
+        width: 20vw;
+        background-color: #1e1e1e;
+        border-left: 2px solid #444;
+        overflow-y: auto;
+      }
+      #plan {
+        background-color: #282c34;
+        color: #f2f0e7;
+        min-height: 5rem;
+        padding: 1em 0 1em 1em;
+      }
+      #summary-title {
+        background-color: #444;
+        color: #f2f0e7;
+        padding: 0.5em;
+        font-weight: bold;
+        border-bottom: 1px solid #666;
+      }
+      #summary-list {
+        color: #f2f0e7;
+        padding: 1em;
+        font-family: monospace;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+      .summary-node {
+        padding: 0.5em;
+        border-bottom: 1px solid #333;
+        margin: 0.3em 0;
+      }
+      .summary-node.selected {
+        background-color: #FFD700;
+        color: #000;
+        font-weight: bold;
+        padding: 0.5em;
+        margin: 0.3em 0;
+        border-radius: 4px;
+      }
+      .metrics-section {
+        border-top: 2px solid #444;
+        margin-top: 1em;
+        padding-top: 1em;
+      }
+      .metric-item {
+        padding: 0.6em;
+        font-size: 13px;
+        margin: 0.4em 0;
+        border-radius: 4px;
+        background-color: #2c2c2c;
+        color: #f2f0e7;
+        border-left: 4px solid #555;
+        font-weight: 500;
+      }
+      .metric-item.best {
+        background-color: #1e7e34;
+        color: #fff;
+        border-left: 4px solid #28a745;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      }
+      .metric-item.buggy {
+        background-color: #721c24;
+        color: #fff;
+        border-left: 4px solid #dc3545;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      }
+      
+      /* Summary node styling */
+      .summary-node {
+        padding: 0.6em;
+        margin: 0.4em 0;
+        background-color: #2c2c2c;
+        border-left: 4px solid #666;
+        border-radius: 4px;
+        font-size: 13px;
+        line-height: 1.6;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      }
+      .summary-node.best {
+        background-color: #1e7e34;
+        color: #fff;
+        border-left: 4px solid #28a745;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      }
+      .summary-node.buggy {
+        background-color: #721c24;
+        color: #fff;
+        border-left: 4px solid #dc3545;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      }
+
+      /* Selection info styling */
+      .selection-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 0.5em;
+        font-size: 12px;
+        color: #f2f0e7;
+      }
+      .selection-table th {
+        background-color: #333;
+        padding: 0.5em;
+        text-align: left;
+        border-bottom: 2px solid #555;
+      }
+      .selection-table td {
+        padding: 0.5em;
+        border-bottom: 1px solid #444;
+      }
+      .stat-info {
+        background-color: #2c2c2c;
+        color: #f2f0e7;
+        padding: 0.8em;
+        margin: 0.5em 0;
+        border-radius: 4px;
+        font-size: 11px;
+        line-height: 1.6;
+        border-left: 4px solid #4a90e2;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      .stat-info strong {
+        color: #4a90e2;
+        display: block;
+        margin-bottom: 0.3em;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="canvas-container"></div>
+    <pre id="text-container"><div id="plan"></div><hr><code id="code" class="language-python"></code></pre>
+    <div id="summary-container">
+      <div id="summary-title">Selected Nodes (Summary)</div>
+      <div id="summary-list">No nodes selected yet...</div>
+      <div class="metrics-section">
+        <div id="summary-title">Selections (Raw/Aux/StatMax)</div>
+        <div id="selection-summary">No selections yet...</div>
+      </div>
+      <div class="metrics-section">
+        <div id="summary-title">Node Metrics</div>
+        <div id="metrics-list">No metrics available...</div>
+      </div>
+    </div>
+  </body>
+</html>

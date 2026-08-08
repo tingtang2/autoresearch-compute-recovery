@@ -1,0 +1,16 @@
+id: playground-series-s5e8
+name: Binary Classification - Bank Marketing
+competition_type: simple
+awards_medals: false
+prizes: null
+description: mlebench/competitions/playground-series-s5e8/description.md
+
+dataset:
+  answers: playground-series-s5e8/prepared/private/test.csv
+  sample_submission: playground-series-s5e8/prepared/public/sample_submission.csv
+
+grader:
+  name: auc-roc
+  grade_fn: mlebench.competitions.playground-series-s5e8.grade:grade
+
+preparer: mlebench.competitions.playground-series-s5e8.prepare:prepare

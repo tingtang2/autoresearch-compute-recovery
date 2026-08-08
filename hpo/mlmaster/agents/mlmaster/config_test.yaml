@@ -1,0 +1,46 @@
+vars:
+  time_limit: &time_limit 720
+  step_count: &step_count 500
+
+defaults: &defaults
+  start: mlmaster/start.sh
+  dockerfile: mlmaster/Dockerfile
+  kwargs_type: omegaconf
+  env_vars: &env_vars
+    TIME_LIMIT_SECS: *time_limit
+    STEP_LIMIT: *step_count
+
+kwargs_common: &kwargs_common
+  agent.code.model: gpt-5-mini
+  agent.code.temp: 1.0
+  agent.code.base_url: "https://api.openai.com/v1"
+  agent.code.api_key: ${OPENAI_API_KEY}
+  agent.feedback.model: gpt-5-mini
+  agent.feedback.temp: 1.0
+  agent.feedback.base_url: "https://api.openai.com/v1"
+  agent.feedback.api_key: ${OPENAI_API_KEY}
+  agent.steps: *step_count
+  agent.steerable_reasoning: false
+  agent.check_format: true
+  agent.require_hyperparameter_tuning: false
+  start_cpu: 0
+  cpus_per_task: 22
+
+mlmaster:
+  <<: *defaults
+  kwargs:
+    <<: *kwargs_common
+  env_vars:
+    <<: *env_vars
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+mlmaster/smoke:
+  <<: *defaults
+  kwargs:
+    <<: *kwargs_common
+    agent.steps: 15
+  env_vars:
+    <<: *env_vars
+    TIME_LIMIT_SECS: 600
+    STEP_LIMIT: 15
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

@@ -1,0 +1,16 @@
+id: neurips-open-polymer-prediction-2025
+name: NeurIPS Open Polymer Prediction 2025
+competition_type: simple
+awards_medals: false
+prizes: null
+description: mlebench/competitions/neurips-open-polymer-prediction-2025/description.md
+
+dataset:
+  answers: neurips-open-polymer-prediction-2025/prepared/private/test.csv
+  sample_submission: neurips-open-polymer-prediction-2025/prepared/public/sample_submission.csv
+
+grader:
+  name: mean-absolute-error
+  grade_fn: mlebench.competitions.neurips-open-polymer-prediction-2025.grade:grade
+
+preparer: mlebench.competitions.neurips-open-polymer-prediction-2025.prepare:prepare

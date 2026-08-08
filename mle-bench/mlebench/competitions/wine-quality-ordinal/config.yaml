@@ -1,0 +1,16 @@
+id: wine-quality-ordinal
+name: Predicting Wine Quality - Ordinal Regression
+competition_type: simple
+awards_medals: false
+prizes: null
+description: mlebench/competitions/wine-quality-ordinal/description.md
+
+dataset:
+  answers: wine-quality-ordinal/prepared/private/test.csv
+  sample_submission: wine-quality-ordinal/prepared/public/sample_submission.csv
+
+grader:
+  name: quadratic-weighted-kappa
+  grade_fn: mlebench.competitions.wine-quality-ordinal.grade:grade
+
+preparer: mlebench.competitions.wine-quality-ordinal.prepare:prepare

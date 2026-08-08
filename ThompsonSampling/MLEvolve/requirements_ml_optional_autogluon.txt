@@ -1,0 +1,13 @@
+# Optional: AutoGluon + Ray (conflicts with datasets/pyarrow>=21 from requirements_ml.txt).
+# Install only if you need these stacks: pip install -r requirements_ml_optional_autogluon.txt
+# You may need to relax datasets/pyarrow in the main ML requirements first.
+
+autogluon==1.4.0
+autogluon.common==1.4.0
+autogluon.core==1.4.0
+autogluon.features==1.4.0
+autogluon.multimodal==1.4.0
+autogluon.tabular==1.4.0
+autogluon.timeseries==1.4.0
+optuna-integration==4.3.0
+ray==2.44.1

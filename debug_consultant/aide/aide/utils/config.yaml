@@ -1,0 +1,152 @@
+# path to the task data directory
+data_dir: null
+
+# either provide a path to a plaintext file describing the task
+desc_file: null
+# or provide the task goal (and optionally evaluation information) as arguments
+goal: null
+eval: null
+
+log_dir: logs
+workspace_dir: workspaces
+
+# whether to unzip any archives in the data directory
+preprocess_data: True
+# whether to copy the data to the workspace directory (otherwise it will be symlinked)
+# copying is recommended to prevent the agent from accidentally modifying the original data
+copy_data: True
+
+exp_name: null # a random experiment name will be generated if not provided
+
+# If true, reuse the latest existing run directory matching `*-<exp_name>`
+# under `log_dir`/`workspace_dir` (instead of creating a new indexed run).
+resume: false
+
+# settings for code execution
+exec:
+  timeout: 3600
+  num_threads: 8
+  agent_file_name: runfile.py
+  format_tb_ipython: False
+
+generate_report: True
+# LLM settings for final report from journal
+report:
+  model: gpt-4o
+  temp: 1.0
+
+# agent hyperparams
+agent:
+  # how many improvement iterations to run
+  steps: 20
+  # whether to instruct the agent to use CV (set to 1 to disable)
+  k_fold_validation: 5
+  # whether to instruct the agent to generate a prediction function
+  expose_prediction: False
+  # whether to provide the agent with a preview of the data
+  data_preview: True
+
+  # LLM settings for coding
+  code:
+    model: gpt-4o
+    temp: 0.5
+
+  # LLM settings for evaluating program output / tracebacks
+  feedback:
+    model: gpt-4o
+    temp: 0.5
+
+  # hyperparameters for the tree search
+  search:
+    max_debug_depth: 5
+    debug_prob: 0.5
+    num_drafts: 5
+
+    # Debugging consultant / memory (prompt-only)
+    use_bug_consultant: true
+    bug_context_mode: consultant  # buggy_code | consultant | both
+    inject_shared_context: true  # set false to ablate cross-branch memory injection
+    bug_context_count: 3
+    observation_window_size: 10
+    advice_budget_chars: 200000
+    # Memory safety valves (intentionally high defaults; should rarely trigger)
+    max_bug_records: 500
+    max_active_bugs: 200
+    max_trials_per_bug: 20
+    delete_pruned_bug_files: false
+
+# Progressive complexity (prompt-based stage instructions)
+progressive:
+  enabled: false
+  exploration_end: 0.80
+  refinement_end: 0.80
+
+  exploration:
+    data_fraction: 1.0
+    disable_hparam_tuning: true
+    max_cv_folds: 5
+    subsample_method: stratified
+    hparam_iter_limit: null
+
+  refinement:
+    data_fraction: 1.0
+    disable_hparam_tuning: true
+    max_cv_folds: 5
+    subsample_method: stratified
+    hparam_iter_limit: null
+
+  validation:
+    data_fraction: 1.0
+    disable_hparam_tuning: false
+    max_cv_folds: 5
+    subsample_method: stratified
+    hparam_iter_limit: 20
+
+# Prompt-only plan/sketch constraints.
+# Note: we do NOT truncate/regenerate based on these values; the agent only changes prompt instructions.
+plan_constraints:
+  enabled: true
+  max_sentences: 5
+
+# Timing/logging (does not affect execution)
+timing:
+  enabled: false
+  track_cumulative_time: true
+
+# post-search final solution selection (A/B experiments vary ONLY these parameters)
+post_search:
+  # baseline behavior: pick best node by the primary validation metric
+  selection: best_valid
+  top_k: 20
+
+  # robust selection parameters (used by some strategies)
+  k_std: 2.0
+  z_threshold: 2.0
+  guard_std: 2.0
+
+  # elite_maximin parameters (takes max of all three)
+  elite_top_k: 3  # minimum elite size (top-K)
+  elite_ratio: 0.05  # ratio-based filter: top 5% of nodes
+  elite_k_std: 2.0  # statistical filter: best ± k_std * population_std
+
+# additional artifacts for research reproducibility (does not affect agent behavior)
+export:
+  save_solutions: true
+  save_submissions: true
+  save_metrics_table: true
+  save_final_selection: true
+
+# per-step grading with MLE-bench (for generalization gap experiments)
+per_step_grading:
+  enabled: false
+  mlebench_data_dir: mle-bench/data/competitions
+  methods:
+    - best_valid
+    - mean_minus_k_std
+    - maximin
+    - elite_maximin
+  grade_every_n_steps: 1
+  save_every_n_steps: 1  # Save CSV/JSON every N steps for live monitoring
+
+# Optional competition ID (for per-step grading)
+competition_id: null
